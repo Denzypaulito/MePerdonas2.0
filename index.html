@@ -9,23 +9,40 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 
 <style>
-*{box-sizing:border-box;font-family:'Nunito',sans-serif}
+*{
+  box-sizing:border-box;
+  font-family:'Nunito',sans-serif;
+}
+
+html, body{
+  margin:0;
+  padding:0;
+  width:100vw;
+  height:calc(var(--vh, 1vh) * 100);
+  overflow:hidden;
+  position:fixed;
+  top:0;
+  left:0;
+  touch-action:none;
+}
 
 body{
-  margin:0;
-  height:100vh;
   background:radial-gradient(circle at top,#1b1b2f,#0b0b14);
-  overflow:hidden;
   display:flex;
   justify-content:center;
   align-items:center;
   color:white;
 }
 
-.container{
+/* ---------- CONTENEDOR ---------- */
+.container,
+.final{
   text-align:center;
   z-index:5;
   padding:20px;
+  max-width:100vw;
+  max-height:100vh;
+  overflow:hidden;
 }
 
 h1{
@@ -49,9 +66,17 @@ button{
   font-weight:900;
 }
 
-.yes{background:#ff4d6d;color:white}
-.no{background:#2b2b2b;color:white}
+.yes{
+  background:#ff4d6d;
+  color:white;
+}
 
+.no{
+  background:#2b2b2b;
+  color:white;
+}
+
+/* ---------- NO INFINITO ---------- */
 .tiny-no{
   position:absolute;
   padding:6px 10px;
@@ -62,7 +87,7 @@ button{
   cursor:pointer;
 }
 
-/* corazones fondo */
+/* ---------- CORAZONES FONDO ---------- */
 .heart{
   position:absolute;
   width:22px;
@@ -71,7 +96,8 @@ button{
   z-index:1;
 }
 
-.heart::before,.heart::after{
+.heart::before,
+.heart::after{
   content:"";
   position:absolute;
   width:22px;
@@ -80,10 +106,10 @@ button{
   background:inherit;
 }
 
-.heart::before{left:-11px}
-.heart::after{top:-11px}
+.heart::before{left:-11px;}
+.heart::after{top:-11px;}
 
-/* intro */
+/* ---------- INTRO CORAZONES ---------- */
 .intro-heart{
   position:absolute;
   width:180px;
@@ -91,12 +117,7 @@ button{
   z-index:20;
 }
 
-/* final */
-.final{
-  z-index:10;
-  text-align:center;
-}
-
+/* ---------- MENSAJE FINAL ---------- */
 .line{
   opacity:0;
   font-size:clamp(1.6rem,5vw,2.3rem);
@@ -130,27 +151,39 @@ button{
 </audio>
 
 <script>
-/* música */
-const music=document.getElementById("music");
-music.volume=.45;
-document.body.addEventListener("click",()=>{if(music.paused)music.play()},{once:true});
+/* ---------- FIX VIEWPORT MÓVIL ---------- */
+function setVH(){
+  document.documentElement.style.setProperty(
+    '--vh',
+    `${window.innerHeight * 0.01}px`
+  );
+}
+setVH();
+window.addEventListener('resize', setVH);
 
-/* vibración */
+/* ---------- MÚSICA ---------- */
+const music = document.getElementById("music");
+music.volume = 0.45;
+document.body.addEventListener("click",()=>{
+  if(music.paused) music.play();
+},{once:true});
+
+/* ---------- VIBRACIÓN ---------- */
 const vibrate = ms => navigator.vibrate && navigator.vibrate(ms);
 
-/* ===== MENSAJE FINAL CON GIF ===== */
+/* ---------- MENSAJE FINAL ---------- */
 function sayYes(){
   vibrate([80,40,80]);
-  document.body.innerHTML=`
+  document.body.innerHTML = `
     <div class="final">
       <div class="line">Muchísimas gracias por perdonarme</div>
       <div class="line">amor de mi almaaaa 🖤🧡❤️</div>
       <div class="line">No volverá a suceder</div>
-      <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3J0Z2JwZWZqdm93dndqNHF4MGh0YnlxZnl2NnJ2NWRvMTR6dGdzZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oriO0OEd9QIDdllqo/giphy.gif" alt="gatito tierno">
+      <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif" alt="gatito tierno">
     </div>
   `;
 
-  const lines=document.querySelectorAll(".line");
+  const lines = document.querySelectorAll(".line");
   lines.forEach((l,i)=>{
     gsap.to(l,{
       opacity:1,
@@ -163,15 +196,15 @@ function sayYes(){
   gsap.to(".final img",{opacity:1,delay:4.5,duration:1.5});
 }
 
-/* ===== NO infinito ===== */
+/* ---------- NO INFINITO ---------- */
 function explode(btn,level){
   vibrate(30);
-  const r=btn.getBoundingClientRect();
+  const r = btn.getBoundingClientRect();
   btn.remove();
-  const pieces=Math.max(3,6-level);
 
+  const pieces = Math.max(3,6-level);
   for(let i=0;i<pieces;i++){
-    const n=document.createElement("div");
+    const n = document.createElement("div");
     n.className="tiny-no";
     n.innerText="No";
     n.style.left=r.left+"px";
@@ -193,7 +226,7 @@ function move(el){
   });
 }
 
-/* ===== corazones fondo ===== */
+/* ---------- CORAZONES FONDO ---------- */
 const colors=["#ff2f2f","#000","#ff8c1a"];
 
 function bgHeart(){
@@ -201,35 +234,32 @@ function bgHeart(){
   h.className="heart";
   h.style.background=colors[Math.random()*3|0];
   h.style.left=Math.random()*innerWidth+"px";
-  h.style.top=innerHeight+30+"px";
+  h.style.top=innerHeight+40+"px";
   document.body.appendChild(h);
 
   gsap.to(h,{
-    y:-innerHeight-100,
+    y:-innerHeight-120,
     x:"+="+(Math.random()*200-100),
     duration:9,
     onComplete:()=>h.remove()
   });
 }
 
-/* ===== LATIDO SINCRONIZADO ===== */
+/* ---------- LATIDO ---------- */
 setInterval(()=>{
-  gsap.fromTo(".heart",
-    {scale:1},
-    {scale:1.25,duration:.25,yoyo:true,repeat:1}
-  );
+  gsap.fromTo(".heart",{scale:1},{scale:1.25,duration:.25,yoyo:true,repeat:1});
   vibrate(10);
 },1200);
 
-/* ===== INTRO ===== */
+/* ---------- INTRO CORAZONES ---------- */
 function introHeart(){
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   svg.setAttribute("viewBox","0 0 32 29.6");
   svg.classList.add("intro-heart");
   svg.innerHTML=`<path fill="${colors[Math.random()*3|0]}"
-  d="M23.6,0c-3.4,0-6.4,2.1-7.6,5.1C14.8,2.1,11.8,0,8.4,0
-  C3.8,0,0,3.8,0,8.4c0,9.4,16,21.2,16,21.2s16-11.8,16-21.2
-  C32,3.8,28.2,0,23.6,0z"/>`;
+    d="M23.6,0c-3.4,0-6.4,2.1-7.6,5.1C14.8,2.1,11.8,0,8.4,0
+    C3.8,0,0,3.8,0,8.4c0,9.4,16,21.2,16,21.2s16-11.8,16-21.2
+    C32,3.8,28.2,0,23.6,0z"/>`;
 
   svg.style.left=Math.random()*innerWidth+"px";
   svg.style.top=innerHeight+200+"px";
